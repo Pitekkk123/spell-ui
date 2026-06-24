@@ -1,9 +1,14 @@
 # 🗺️ WARSZAWA NICHE GUIDE — by Bilu
 
 Zweryfikowana, interaktywna mapa **niszowej Warszawy** w jednym samodzielnym pliku HTML.
-Odtworzenie struktury *TOKYO Niche Guide : by Bilu* dla Warszawy — 18 stałych modułów
-(architektura, winyle, kawa specialty, urbex, panoramy, hazard/adrenalina i in.),
-z twardą weryfikacją istnienia obiektów i audytem źródeł.
+Odtworzenie struktury *TOKYO Niche Guide : by Bilu* dla Warszawy — **142 miejsca** w **25 modułach**
+(18 bazowych: architektura, winyle, kawa specialty, urbex, panoramy, hazard/adrenalina i in. +
+7 hipstersko-lokalnych: wino naturalne, vintage, galerie niezależne, craft beer, kluby, piekarnie
+rzemieślnicze, concept store), z twardą weryfikacją istnienia obiektów i audytem źródeł.
+
+> **v2 (2026-06):** dodano **50** miejsc hipstersko-lokalnych „poza szlakiem" (małe, niezależne,
+> niskoopiniowe — twarda poprzeczka <1500 opinii Google, odrzucono mainstream/turystykę i lokale
+> zamknięte), a wszystkie opisy skrócono o ~50–65%. Szczegóły w `AUDIT_REPORT.md` §7.
 
 > Wygenerowane topologią agentów **A0–A19 + S1–S7** (orchestrator → roj badawczy 18 modułów →
 > subagenci weryfikacyjni geo/fakty/transit → normalizacja → front liquid glass → audyt).

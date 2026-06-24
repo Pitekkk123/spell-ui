@@ -121,3 +121,49 @@ Reguła §7: jeśli **>5%** obiektów ma status UNVERIFIED (0 źródeł) → zwr
 - **Miniatury / zdjęcia:** każda pinezka ma natychmiast deterministyczny kafel satelitarny ESRI liczony z `la/lo` (gwarantowany, nigdy pusty). Dla 26 rozpoznawalnych landmarków front w tle dociąga realne zdjęcie z Wikipedii (`pageimages`, na maszynie użytkownika — build jest za egress-proxy blokującym Wikimedia) i podmienia kafel po załadowaniu; przy błędzie zostaje satelita. Przycisk „📸 Zdjęcia" otwiera **Google Grafikę** dla każdego miejsca (link, bez niestabilnego hotlinkowania — Google Images nie ma API miniatur).
 - **Anchor kuratorski (`ANCHOR_KURATORSKI`):** 1 obiekt dodany z wiedzy kuratorskiej (backfill modułu urbex) dla pewnego pokrycia; oznaczony i opatrzony źródłem.
 - **Linie metra:** zweryfikowane jako M1 czerwona / M2 zielona (WebSearch); dokładny hex wg standardowych wartości operatora (Wikipedia i mapa-metro zwracały 403 przez egress proxy).
+
+---
+
+## 7. Rozszerzenie hipsterskie — v2 (2026-06-24)
+
+**Powód:** feedback — wersja v1 zawierała zbyt wiele miejsc mainstreamowych/turystycznych (np. taras PKiN, ogród Kopernika ~55 tys. opinii, Hala Bakalarska ~10,9 tys.), niezgodnych z założeniem „niszowe / poza szlakiem". v2 **dokłada** 50 miejsc hipstersko-lokalnych (nie usuwa v1) i kompresuje opisy.
+
+### 7.1 Podsumowanie v2
+
+| Metryka | Wartość |
+|---|---|
+| Obiekty łącznie | **142** (92 v1 + **50** nowych) |
+| Nowe moduły | **7** (winebar, vintage, gallery, craft, club, bakery, concept) |
+| Rozszerzone moduły v1 | 5 (coffee +5, vinyl +3, workshop +4, restaurant +4, niche +5) |
+| Nowe obiekty ze ≥1 źródłem | **50/50 (100%)** |
+| Nowe obiekty z oceną Google | 28/50 — pozostałe 22 → `rt=null` (zero zmyślonych ocen) |
+| Współrzędne | wyprowadzone z potwierdzonych adresów ulicznych (geokodery zablokowane przez proxy 403); część `GEO_APPROX` |
+| Kompresja opisów (92 v1) | 46 564 → 16 121 znaków (**−65%**); nowe 50 ~174 zn.; wszystkie ≤216 zn., ≤2 zdania |
+
+### 7.2 Nowe moduły (7)
+
+| Moduł | Slot | Obiekty | Przykłady |
+|---|---|---|---|
+| 🍷 Wino Naturalne | `winebar` | 4 | Rausz (Wilcza 27), Źródło (Targowa 81), Nowina (+ muzeum korkociągów) |
+| 🧥 Vintage & Second-hand | `vintage` | 4 | Matrioszka, Nostalgia (koszulki piłkarskie), Kamizelka (Saska Kępa) |
+| 🖼 Galerie Niezależne | `gallery` | 5 | Raster, lokal_30, Wschód, Propaganda, Piktogram (WGW) |
+| 🍺 Craft Beer | `craft` | 4 | Cześć (Grzybowska 2), Same Krafty, Beer Station Praga |
+| 🎧 Kluby & Rave | `club` | 4 | Chmury, Skład Butelek, Jasna 1, A.D.A. Puławska |
+| 🥐 Piekarnie Rzemieślnicze | `bakery` | 4 | BAKEN, QUASĄ, DEJ, Aromat (Puławska) |
+| 🪴 Concept & Design | `concept` | 4 | NAP (Mysia 3), Pan tu nie stał, Plant Concept, Locum |
+
+### 7.3 Metoda i rzetelność (zero halucynacji)
+
+- **12 agentów badawczych** (po kategorii) weryfikowało istnienie i bieżące działanie przez **WebSearch** z wieloźródłowym potwierdzeniem (oficjalne strony / IG / agregatory). `WebFetch` oraz geokodery (Nominatim/Photon) zwracały **403** (anti-bot serwisów + egress-proxy) — stąd współrzędne wyprowadzano z potwierdzonych adresów (poziom ulicy/budynku), wszystkie w ramce `52.05–52.40, 20.80–21.30`.
+- **Twarda poprzeczka niszowości:** wykluczano miejsca turystyczno-mainstreamowe i z **>1500 opinii Google** (preferencja <800). Bez potwierdzenia źródłem — pomijano (nie zmyślano).
+- **Odrzucone (przykłady, dla przejrzystości):**
+  - *zamknięte:* Pogłos (XII 2024), Chmielarnia, Tarabuk, MiTo;
+  - *zbyt mainstream (>1500 opinii):* Cuda na Kiju (3956), Arigator Ramen (6040), Mezze (4173), Jabeerwocky (2666), Kufle i Kapsle (2638);
+  - *niepotwierdzone:* Kafarnaum, Fuel Cafe, Cudawa, Brand Books Café.
+- **Nadmiar ponad limit 50 (4 obiekty, ważne — nie zniknęły przez błąd, lecz przez cap):** Winylowa, Blisko Bar, Bar Tung Anh, Szafa na Sztuki — zweryfikowane, ale odcięte przy domknięciu do 50 (najniższy wynik jakości: brak oceny / poza dzielnicami priorytetowymi).
+- **Niezależny spot-check orkiestratora:** ręcznie potwierdzono przez WebSearch próbkę — Rausz (Wilcza 27, rausz.me), Nowina (Nowogrodzka 4 + muzeum korkociągów Cybulskich), Muzant (Warecka 4/6, antykwariat od 1989), Trzy Kruki (pl. Hallera 8, Good Coffee Micro Roasters) — wszystkie realne pod podanym adresem.
+
+### 7.4 Bramka SHIP v2
+
+- Nowe obiekty UNVERIFIED (0 źródeł): **0/50 = 0.0%** → ✅ **PASS**
+- Uwaga jakości: współrzędne `GEO_APPROX` (poziom ulicy) — akceptowalne dla pinezek mapy; oceny brakujące jawnie `null`, bez pseudo-precyzji.
