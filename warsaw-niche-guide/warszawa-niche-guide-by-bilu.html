@@ -281,13 +281,20 @@ let active = null;        // active module filter (null = ALL)
 let query = "";
 const markers = new Map(); // place -> marker
 
-/* ---- map ---- */
-const map = L.map('map',{zoomControl:true,attributionControl:true,minZoom:10,maxZoom:18})
-  .setView(CITY.center, CITY.zoom);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-  subdomains:'abcd', maxZoom:20,
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · sat: Esri · by Bilu'
-}).addTo(map);
+/* ---- map (graceful: brak Leaflet/CDN => i tak pokazujemy listę offline) ---- */
+let map = null;
+try {
+  if (typeof L === 'undefined' || !L.map) throw new Error('Leaflet niezaładowany (brak internetu / CDN zablokowany)');
+  map = L.map('map',{zoomControl:true,attributionControl:true,minZoom:10,maxZoom:18})
+    .setView(CITY.center, CITY.zoom);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    subdomains:'abcd', maxZoom:20,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a> · sat: Esri · by Bilu'
+  }).addTo(map);
+} catch(e){
+  const el=document.getElementById('map');
+  if(el) el.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:#aab4c2;font-size:13px;line-height:1.7">🗺️ Mapa wymaga połączenia z internetem<br>(biblioteka Leaflet + kafle CDN).<br><br>Lista miejsc, filtry i szukajka po lewej działają też offline.</div>';
+}
 
 /* ---- helpers ---- */
 function tileXY(lat,lon,z){
@@ -402,7 +409,7 @@ function showHover(p, marker){
   resolvePhoto(p, url=>{ if(hc._for===p){ const t=hc.querySelector('.hc-top'); if(t) t.style.backgroundImage='url("'+url+'")'; } });
 }
 function hideHover(){ hideT=setTimeout(()=>hc.classList.remove('show'),110); }
-map.on('move',()=>{ if(hc.classList.contains('show')) hc.classList.remove('show'); });
+if(map) map.on('move',()=>{ if(hc.classList.contains('show')) hc.classList.remove('show'); });
 
 /* ---- popup ---- */
 function popupHtml(p){
@@ -435,6 +442,7 @@ function popupHtml(p){
 
 /* ---- build markers ---- */
 function buildMarkers(){
+  if(!map || typeof L==='undefined' || !L.marker) return;
   P.forEach(p=>{
     const m=L.marker([p.la,p.lo],{icon:pinIcon(p.ct)});
     m.bindPopup(popupHtml(p),{className:'glass',maxWidth:300,closeButton:true,autoPanPadding:[40,40]});
@@ -486,7 +494,7 @@ function visible(){
 }
 function render(){
   const vis=visible(), set=new Set(vis);
-  markers.forEach((m,p)=>{ if(set.has(p)){ if(!map.hasLayer(m)) m.addTo(map);} else if(map.hasLayer(m)) map.removeLayer(m); });
+  if(map) markers.forEach((m,p)=>{ if(set.has(p)){ if(!map.hasLayer(m)) m.addTo(map);} else if(map.hasLayer(m)) map.removeLayer(m); });
   // list
   const list=document.getElementById('list');
   if(!vis.length){ list.innerHTML=`<div class="empty">Brak miejsc dla tego filtra.<br>Wyczyść szukajkę lub wybierz „Wszystkie".</div>`; }
@@ -507,10 +515,12 @@ function render(){
     list.innerHTML=html;
     list.querySelectorAll('.item').forEach(it=>it.addEventListener('click',()=>{
       const p=P[+it.dataset.i], m=markers.get(p);
-      if(!map.hasLayer(m)) m.addTo(map);
-      map.flyTo([p.la,p.lo],15,{duration:.6});
-      m.setPopupContent(popupHtml(p));
-      setTimeout(()=>m.openPopup(),350);
+      if(map && m){
+        if(!map.hasLayer(m)) m.addTo(map);
+        map.flyTo([p.la,p.lo],15,{duration:.6});
+        m.setPopupContent(popupHtml(p));
+        setTimeout(()=>m.openPopup(),350);
+      }
       if(window.innerWidth<=760) document.getElementById('sidebar').classList.remove('open');
     }));
   }
